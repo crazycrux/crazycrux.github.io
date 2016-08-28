@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Crazy Crux</title><link href="https://crazycrux.github.io/" rel="alternate"></link><link href="https://crazycrux.github.io/feeds/all.atom.xml" rel="self"></link><id>https://crazycrux.github.io/</id><updated>2016-08-26T23:00:00+05:30</updated><entry><title>Static vs Shared libraries</title><link href="https://crazycrux.github.io/static-vs-shared-libraries.html" rel="alternate"></link><published>2016-08-26T23:00:00+05:30</published><author><name>Sagar Udasi</name></author><id>tag:crazycrux.github.io,2016-08-26:static-vs-shared-libraries.html</id><summary type="html">&lt;p&gt;This C++ tutorial, using Linux as platform, is to understand the difference between shared and static libraries. Throughout this tutorial we will put our code in two directories. Directory 'include' and directory 'src'. The names are verbose enough. We will implement a very simple logging library in C++ which can be used to print log messages to stdout and stderr.&lt;/p&gt;
+&lt;p&gt;Let us create the logging system independently and then learn how to create a library from it.&lt;/p&gt;
+&lt;h2&gt;Very simple logging system&lt;/h2&gt;
+&lt;p&gt;Open up your fav text-editor and create a new file 'simplelogging.h' inside 'include' directory with the following contents in it.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;    &lt;span class="cp"&gt;#pragma once&lt;/span&gt;
+    &lt;span class="cp"&gt;#include&lt;/span&gt;&lt;span class="cpf"&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class="cp"&gt;&lt;/span&gt;
+    &lt;span class="cp"&gt;#include&lt;/span&gt;&lt;span class="cpf"&gt;&amp;lt;string&amp;gt;&lt;/span&gt;&lt;span class="cp"&gt;&lt;/span&gt;
+    &lt;span class="k"&gt;enum&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="n"&gt;LOG_INFO&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;LOG_WARNING&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;LOG_ERROR&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;LOG_DEBUG&lt;/span&gt;
+    &lt;span class="p"&gt;};&lt;/span&gt;
+    &lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;SimpleLogging&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="k"&gt;private&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+          &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt; &lt;span class="n"&gt;_infoColor&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+          &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt; &lt;span class="n"&gt;_warningColor&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+          &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt; &lt;span class="n"&gt;_errorColor&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+          &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt; &lt;span class="n"&gt;_normalColor&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+        &lt;span class="k"&gt;public&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+            &lt;span class="n"&gt;SimpleLogging&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+            &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="nf"&gt;enableColors&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+            &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="nf"&gt;log&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;level&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt; &lt;span class="n"&gt;msg&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+            &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="nf"&gt;info&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt; &lt;span class="n"&gt;msg&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+            &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="nf"&gt;warning&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt; &lt;span class="n"&gt;msg&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+            &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="nf"&gt;error&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt; &lt;span class="n"&gt;msg&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+    &lt;span class="p"&gt;};&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Add another file 'simplelogging.cpp' in the 'src' directory.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;    &lt;span class="cp"&gt;#include&lt;/span&gt; &lt;span class="cpf"&gt;&amp;quot;../include/simplelogging.h&amp;quot;&lt;/span&gt;&lt;span class="cp"&gt;&lt;/span&gt;
+    &lt;span class="n"&gt;SimpleLogging&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;SimpleLogging&lt;/span&gt;&lt;span class="p"&gt;(){&lt;/span&gt;
+      &lt;span class="n"&gt;_infoColor&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+      &lt;span class="n"&gt;_warningColor&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+      &lt;span class="n"&gt;_errorColor&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+      &lt;span class="n"&gt;_normalColor&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="n"&gt;SimpleLogging&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;enableColors&lt;/span&gt;&lt;span class="p"&gt;(){&lt;/span&gt;
+       &lt;span class="n"&gt;_infoColor&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;\e[97m&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+       &lt;span class="n"&gt;_warningColor&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;\e[33m&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+       &lt;span class="n"&gt;_errorColor&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;\e[31m&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+       &lt;span class="n"&gt;_normalColor&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;\e[0m&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="n"&gt;SimpleLogging&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;log&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;level&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt; &lt;span class="n"&gt;msg&lt;/span&gt;&lt;span class="p"&gt;){&lt;/span&gt;
+        &lt;span class="k"&gt;switch&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;level&lt;/span&gt;&lt;span class="p"&gt;){&lt;/span&gt;
+            &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="nl"&gt;LOG_INFO&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+                &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;cout&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;&lt;/span&gt;&lt;span class="se"&gt;\n&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;_infoColor&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;INFO : &amp;quot;&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;msg&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;_normalColor&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+                &lt;span class="k"&gt;break&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+            &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="nl"&gt;LOG_WARNING&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+                &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;cout&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;&lt;/span&gt;&lt;span class="se"&gt;\n&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;_warningColor&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;WARN : &amp;quot;&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;msg&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;_normalColor&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+                &lt;span class="k"&gt;break&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+            &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="nl"&gt;LOG_ERROR&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+                &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;cerr&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;&lt;/span&gt;&lt;span class="se"&gt;\n&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;_errorColor&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;ERR  : &amp;quot;&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;msg&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;_normalColor&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+                &lt;span class="k"&gt;break&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+            &lt;span class="k"&gt;default&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+                &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;cout&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;&lt;/span&gt;&lt;span class="se"&gt;\n&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;_infoColor&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;INFO : &amp;quot;&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;msg&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;_normalColor&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="n"&gt;SimpleLogging&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;info&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt; &lt;span class="n"&gt;msg&lt;/span&gt;&lt;span class="p"&gt;){&lt;/span&gt;
+        &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;log&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;LOG_INFO&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;msg&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="n"&gt;SimpleLogging&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;warning&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt; &lt;span class="n"&gt;msg&lt;/span&gt;&lt;span class="p"&gt;){&lt;/span&gt;
+        &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;log&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;LOG_WARNING&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;msg&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="n"&gt;SimpleLogging&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;error&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt; &lt;span class="n"&gt;msg&lt;/span&gt;&lt;span class="p"&gt;){&lt;/span&gt;
+        &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;log&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;LOG_ERROR&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;msg&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+
+    &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;main&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;argc&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="kt"&gt;char&lt;/span&gt; &lt;span class="o"&gt;**&lt;/span&gt;&lt;span class="n"&gt;argv&lt;/span&gt;&lt;span class="p"&gt;){&lt;/span&gt;
+      &lt;span class="n"&gt;SimpleLogging&lt;/span&gt; &lt;span class="n"&gt;logger&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+      &lt;span class="n"&gt;logger&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;enableColors&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+      &lt;span class="n"&gt;logger&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;info&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Just an information&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+      &lt;span class="n"&gt;logger&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;warning&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Something went wrong but it&amp;#39;s ok!&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+      &lt;span class="n"&gt;logger&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;error&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;This is not correct! Please look into it!&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+      &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;cout&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;&lt;/span&gt;&lt;span class="se"&gt;\n\n&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+      &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Now compile the file using the below command and execute it&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;    g++ -Wall src/simplelogging.cpp -o simplelogging
+    ./simplelogging
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;We created a simple class which can help us print log messages to screen as we execute our program. Now we may want to use this class in other projects as well. Let us see what options we have. Before diving into static and shared libraries stuff, keep in mind that for compilation (excluding linking) the declaration is enough i.e. the '.h' header file. And BTW we, as a programmer, also need the '.h' file only to know that how we can use the functions provided i.e. what parameters they take and what is the return type etc to write the code.&lt;/p&gt;
+&lt;p&gt;Comment the main function in the 'simplelogging.cpp' file as we no longer want to execute this as a standalone file.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;    &lt;span class="c1"&gt;// int main(int argc, char **argv){&lt;/span&gt;
+    &lt;span class="c1"&gt;//   SimpleLogging logger;&lt;/span&gt;
+    &lt;span class="c1"&gt;//   logger.enableColors();&lt;/span&gt;
+    &lt;span class="c1"&gt;//   logger.info(&amp;quot;Just an information&amp;quot;);&lt;/span&gt;
+    &lt;span class="c1"&gt;//   logger.warning(&amp;quot;Something went wrong but it&amp;#39;s ok!&amp;quot;);&lt;/span&gt;
+    &lt;span class="c1"&gt;//   logger.error(&amp;quot;This is not correct! Please look into it!&amp;quot;);&lt;/span&gt;
+    &lt;span class="c1"&gt;//   std::cout &amp;lt;&amp;lt; &amp;quot;\n\n&amp;quot;;&lt;/span&gt;
+    &lt;span class="c1"&gt;//   return 0;&lt;/span&gt;
+    &lt;span class="c1"&gt;// }&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Create another file 'tool.cpp' in 'src' considering 'tool' is our project in which we want to use our 'simplelogging' class.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;    &lt;span class="c1"&gt;// Tool to say hello!&lt;/span&gt;
+    &lt;span class="cp"&gt;#include&lt;/span&gt; &lt;span class="cpf"&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class="cp"&gt;&lt;/span&gt;
+    &lt;span class="cp"&gt;#include&lt;/span&gt; &lt;span class="cpf"&gt;&amp;quot;../include/simplelogging.h&amp;quot;&lt;/span&gt;&lt;span class="cp"&gt;&lt;/span&gt;
+
+    &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="nf"&gt;main&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;argc&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="kt"&gt;char&lt;/span&gt; &lt;span class="o"&gt;**&lt;/span&gt;&lt;span class="n"&gt;argv&lt;/span&gt;&lt;span class="p"&gt;){&lt;/span&gt;
+      &lt;span class="n"&gt;SimpleLogging&lt;/span&gt; &lt;span class="n"&gt;logger&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+      &lt;span class="n"&gt;logger&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;enableColors&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+      &lt;span class="n"&gt;logger&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;info&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Starting tool&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+      &lt;span class="n"&gt;logger&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;info&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Checking if atleast one argument is given&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+      &lt;span class="k"&gt;if&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="n"&gt;argc&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt; &lt;span class="p"&gt;){&lt;/span&gt;
+        &lt;span class="n"&gt;logger&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;error&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Fatal error. Need atleast one argument!&lt;/span&gt;&lt;span class="se"&gt;\n\n&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+      &lt;span class="p"&gt;}&lt;/span&gt;
+      &lt;span class="k"&gt;if&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="n"&gt;argc&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;=&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt; &lt;span class="p"&gt;){&lt;/span&gt;
+        &lt;span class="n"&gt;logger&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;warning&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Will say hello using the first argument only!&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+      &lt;span class="p"&gt;}&lt;/span&gt;
+      &lt;span class="n"&gt;logger&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;info&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Greeting now ...&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+      &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;cout&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;&lt;/span&gt;&lt;span class="se"&gt;\n&lt;/span&gt;&lt;span class="s"&gt; Hello &amp;quot;&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;argv&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;];&lt;/span&gt;
+      &lt;span class="n"&gt;logger&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;info&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Closing tool&lt;/span&gt;&lt;span class="se"&gt;\n\n&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+      &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;If you now compile tool using the below command, you will get errors by the linker&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;    g++ src/tool.cpp -Wall -o tool
+    /tmp/ccHSKcfl.o: In &lt;span class="k"&gt;function&lt;/span&gt; &lt;span class="sb"&gt;`&lt;/span&gt;main&lt;span class="s1"&gt;&amp;#39;:&lt;/span&gt;
+&lt;span class="s1"&gt;    tool.cpp:(.text+0x21): undefined reference to `SimpleLogging::SimpleLogging()&amp;#39;&lt;/span&gt;
+    tool.cpp:&lt;span class="o"&gt;(&lt;/span&gt;.text+0x2d&lt;span class="o"&gt;)&lt;/span&gt;: undefined reference to &lt;span class="sb"&gt;`&lt;/span&gt;SimpleLogging::enableColors&lt;span class="o"&gt;()&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;&lt;/span&gt;
+&lt;span class="s1"&gt;    tool.cpp:(.text+0x67): undefined reference to `SimpleLogging::info(std::string)&amp;#39;&lt;/span&gt;
+    tool.cpp:&lt;span class="o"&gt;(&lt;/span&gt;.text+0xb6&lt;span class="o"&gt;)&lt;/span&gt;: undefined reference to &lt;span class="sb"&gt;`&lt;/span&gt;SimpleLogging::info&lt;span class="o"&gt;(&lt;/span&gt;std::string&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;&lt;/span&gt;
+&lt;span class="s1"&gt;    tool.cpp:(.text+0x10b): undefined reference to `SimpleLogging::error(std::string)&amp;#39;&lt;/span&gt;
+    tool.cpp:&lt;span class="o"&gt;(&lt;/span&gt;.text+0x16a&lt;span class="o"&gt;)&lt;/span&gt;: undefined reference to &lt;span class="sb"&gt;`&lt;/span&gt;SimpleLogging::warning&lt;span class="o"&gt;(&lt;/span&gt;std::string&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;&lt;/span&gt;
+&lt;span class="s1"&gt;    tool.cpp:(.text+0x1b6): undefined reference to `SimpleLogging::info(std::string)&amp;#39;&lt;/span&gt;
+    tool.cpp:&lt;span class="o"&gt;(&lt;/span&gt;.text+0x22a&lt;span class="o"&gt;)&lt;/span&gt;: undefined reference to &lt;span class="sb"&gt;`&lt;/span&gt;SimpleLogging::info&lt;span class="o"&gt;(&lt;/span&gt;std::string&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;
+    collect2: error: ld returned &lt;span class="m"&gt;1&lt;/span&gt; &lt;span class="nb"&gt;exit&lt;/span&gt; status
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;What that means is the linker is unable to get the reference for the method/function calls. Because we just provided the declaration using the header file, linker does not know where the actual method/function is located and thus cannot link the function calls to the function.&lt;/p&gt;
+&lt;p&gt;We can use the below command to link the function calls to function. Notice we are including the file 'simplelogging.cpp' in our compilation command.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;    g++ src/simplelogging.cpp src/tool.cpp -Wall -o tool
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This will compile properly and you can execute the tool now.&lt;/p&gt;
+&lt;p&gt;However, what happens if you have hundreds of such 'cpp' files in your project to link against? This is where a library comes into play.&lt;/p&gt;
+&lt;h2&gt;Static libraries&lt;/h2&gt;
+&lt;p&gt;In case of static library, you are just taking the partially compiled 'object' files of the classes/functions you created and putting them in an 'archive'. You will provide this archive file to gcc/g++ everytime you compile a program and it will include all the code from the library in your binary as if you wrote everything in a single program. Let us see how we can do that.&lt;/p&gt;
+&lt;p&gt;If you see the help of g++ you will see the following&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;    g++ --help
+    ...
+    ...
+    -E                       Preprocess only&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt; not compile, assemble or link
+    -S                       Compile only&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt; not assemble or link
+    -c                       Compile and assemble, but &lt;span class="k"&gt;do&lt;/span&gt; not link
+    -o &amp;lt;file&amp;gt;                Place the output into &amp;lt;file&amp;gt;
+    ...
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Notice the '-c' option. Compile and assemble, but do not link. This is what we want to do with our 'simplelogging'. Execute the below command to create object files and then archive it into a static library.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;    g++ -Wall -c src/simplelogging.cpp -o simplelogging.o
+    ls
+    &lt;span class="c1"&gt;#Notice the .o file generated&lt;/span&gt;
+    ar rcs libsimplelogging.a simplelogging.o
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Now its the time we can use our little static library to link our tool. Execute the below command to create the tool binary statically linked to 'libsimplelogging.a'&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;    g++ -Wall src/tool.cpp -o tool -L. -lsimplelogging
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Notice that we are not using the 'lib' and '.a' extension while specifying the library. Also -L stands for where to search the library and -l means the name of the library itself without 'lib' and '.a' extensions.&lt;/p&gt;
+&lt;p&gt;IMPORTANT NOTE: We have only linked the program statically to simplelogging library. Our program is still linked dynamically to libraries like libc. More about how to check that in Shared library section below.&lt;/p&gt;
+&lt;p&gt;To statically link program to all the libraries including libc, use the below command&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;    g++ -Wall src/tool.cpp -o tool_static -L. -lsimplelogging -static
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Because all the libraries are statically linked now, including libc, compare the file sizes of the two binaries using below command&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;    ls -lh
+    -rwxrwxr-x &lt;span class="m"&gt;1&lt;/span&gt; sagar sagar  15K Aug &lt;span class="m"&gt;28&lt;/span&gt; 19:57 tool
+    -rwxrwxr-x &lt;span class="m"&gt;1&lt;/span&gt; sagar sagar 1.6M Aug &lt;span class="m"&gt;28&lt;/span&gt; 20:01 tool_static
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;As expected, the size of tool_static is more than tool because all the contents of libc is now part of the binary itself.&lt;/p&gt;
+&lt;p&gt;In case of static libraries, the libraries and the main program are merging together in a single executable binary during compile time making the file size bigger. While there are some advantages, like simplicity for the user to execute, easy to package and bundle, the disadvantages with static libraries are worth considering.&lt;/p&gt;
+&lt;p&gt;What happens if hundreds of applications are built using your library and then you discover a bug in your library and want to provide a new version of it? All the application which are built on top of your library have to be compiled again.&lt;/p&gt;
+&lt;p&gt;It would be nice if we could keep the library and the main executable separate forever and just delay the linking part of the library till the time the program is executed. This way there will be only one copy of the library on the disk which all the programs can link against during runtime and if you want to give updates you can update this library file and simply restart all the applications to use the new library version!&lt;/p&gt;
+&lt;p&gt;This is where shared library comes into play.&lt;/p&gt;
+&lt;h2&gt;Shared libraries&lt;/h2&gt;
+&lt;p&gt;Shared libraries are loaded in primary memory whenever the program which uses it is executed. It is the job of 'loader', also called 'runtime linker', to check the library requirement of the executable and make sure the library is available in the memory (May it be a single copy for all the processes or multiple copies in the address space of each process which needs it). Now these are some advanced concepts like 'relocatable' and 'position independent code' which I won't cover here. And BTW, just keep in mind for now that we will be generating 'position independent code' for our library.&lt;/p&gt;
+&lt;p&gt;Lets convert our simplelogging library into shared library. All you have to do is execute the below command&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;    g++ -Wall -shared src/simplelogging.cpp -o libsimplelogging.so -fPIC
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Now lets link this shared library to our little tool&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;    g++ -Wall src/tool.cpp -o tool -L. -lsimplelogging
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Let us see what all shared libraries our tool needs to execute. We can use the readelf command for this&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;    readelf -a tool &lt;span class="p"&gt;|&lt;/span&gt; grep Shared
+    0x0000000000000001 &lt;span class="o"&gt;(&lt;/span&gt;NEEDED&lt;span class="o"&gt;)&lt;/span&gt;             Shared library: &lt;span class="o"&gt;[&lt;/span&gt;libsimplelogging.so&lt;span class="o"&gt;]&lt;/span&gt;
+    0x0000000000000001 &lt;span class="o"&gt;(&lt;/span&gt;NEEDED&lt;span class="o"&gt;)&lt;/span&gt;             Shared library: &lt;span class="o"&gt;[&lt;/span&gt;libstdc++.so.6&lt;span class="o"&gt;]&lt;/span&gt;
+    0x0000000000000001 &lt;span class="o"&gt;(&lt;/span&gt;NEEDED&lt;span class="o"&gt;)&lt;/span&gt;             Shared library: &lt;span class="o"&gt;[&lt;/span&gt;libgcc_s.so.1&lt;span class="o"&gt;]&lt;/span&gt;
+    0x0000000000000001 &lt;span class="o"&gt;(&lt;/span&gt;NEEDED&lt;span class="o"&gt;)&lt;/span&gt;             Shared library: &lt;span class="o"&gt;[&lt;/span&gt;libc.so.6
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Wow! Simple enough. Our program needs libsimplelogging.so, libstdc++.so.6, libgcc_s.so.1 and libc.so.6 in order to run. And it will be the job of 'loader' to make sure these libraries are loaded in memory. But where are these libraries located? Lets us see.&lt;/p&gt;
+&lt;p&gt;Lets try to run our program now and see whether it runs!&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;    ./tool
+    ./tool: error &lt;span class="k"&gt;while&lt;/span&gt; loading shared libraries: libsimplelogging.so: cannot open shared object file: No such file or directory
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;OOPS! Looks like our 'loader' was unable to find the library libsimplelogging.so&lt;/p&gt;
+&lt;p&gt;This happened because loader uses a cache file to locate all the shared libraries in the system. It is just a table 'libraryname' =&amp;gt; 'location'. Lets try to print the table&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;    ldconfig -p
+    ...
+    &lt;span class="c1"&gt;#lots of entries. you better check your own!&lt;/span&gt;
+    ...
+
+    ldconfig -p &lt;span class="p"&gt;|&lt;/span&gt; grep libc.so.6
+      libc.so.6 &lt;span class="o"&gt;(&lt;/span&gt;libc6,x86-64, OS ABI: Linux 2.6.24&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;&amp;gt; /lib/x86_64-linux-gnu/libc.so.6
+      libc.so.6 &lt;span class="o"&gt;(&lt;/span&gt;libc6, OS ABI: Linux 2.6.24&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;&amp;gt; /lib/i386-linux-gnu/libc.so.6
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Looks like libc is present in two different locations on my system. But what about our library simplelogging? You won't see that in the cache. Let us now update the cache of 'ld' so that it knows where to find libsimplelogging.so if some application needs it.&lt;/p&gt;
+&lt;p&gt;Lets put the library at a conventionally better location.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;    sudo mkdir /usr/local/lib/simplelogging
+    sudo cp libsimplelogging.so /usr/local/lib/simplelogging/
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Create a file /etc/ld.so.conf.d/x86_64-linux-simplelogging.conf and put the below line in it&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;    /usr/local/lib/simplelogging/
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Now update the cache of 'ld' and see if we get our new library listed.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;    sudo ldconfig
+    ldconfig -p &lt;span class="p"&gt;|&lt;/span&gt; grep simplelogging
+    libsimplelogging.so &lt;span class="o"&gt;(&lt;/span&gt;libc6,x86-64&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;&amp;gt; /usr/local/lib/simplelogging/libsimplelogging.so
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Okay it is there. Now lets try to run our tool and it should work!&lt;/p&gt;
+&lt;p&gt;If at all you don't want to update the cache of the 'ld' then just go to the directory where we created the library and use the below command to instruct loader to check in current directory for the library.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;  &lt;span class="nb"&gt;export&lt;/span&gt; &lt;span class="nv"&gt;LD_LIBRARY_PATH&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nv"&gt;$PWD&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;And that is it! :)&lt;/p&gt;</summary><category term="C++"></category><category term="Linux"></category></entry></feed>
